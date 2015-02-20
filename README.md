@@ -16,13 +16,14 @@ TODO
 
 Example:
 -------------
+All you have to do in the controller is to provide a function to save record. This must return a promise and it takes two arguments:
+* `field` - corresponds to the column in the table in database that will be updated
+* `val` - new value to save
+
+it's assumed that the key for the "where" clause is available in controller
 
 **index.js - inside Controller:**
 ```
-// function that is used by auto-save directive. It must return a promise and it takes two arguments:
-// field - corresponds to the column in the table in database that will be updated
-// val - new value to save
-// it's assumed that the key for the "where" clause is available in controller
 $scope.updateField = function (field, val) {
 	var deferred = $q.defer();
 
@@ -40,7 +41,8 @@ $scope.updateField = function (field, val) {
 };
 ```
 
-**index.html:** Example using anuglar-material
+**index.html:**
+Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages](https://docs.angularjs.org/api/ngMessages/directive/ngMessages), [font-awesome](http://fortawesome.github.io/Font-Awesome/)
 ```
 <form name="formEditArticle" novalidate auto-save="updateField" auto-save-debounce="1000">
 	<md-content layout="column">
@@ -59,13 +61,52 @@ $scope.updateField = function (field, val) {
 	</md-content>
 </form>
 ```
-**Explanation of directives used:
+**Explanation of directives used:**
 * `auto-save="updateField"` - must be applied to the `<form>`. It takes the name of the function used to save record.
 * `auto-save-debounce="1000"` - specify how long to wait for input before saving
 * `auto-save-field="name"` - must be applied to an input with attribute `ng-model`. The "name" here is the name of the column in the table to be updated.
 * `auto-saving="article.name"` - apply this directive to an element that you want to show up when saving is in progress. The value of the attribute must be set to the value of 'ng-model' applied to the corresponding input
 * `auto-saved="article.name"` - apply this directive to an element that you want to show up when saving is in complete successfully. The value of the attribute must be set to the value of 'ng-model' applied to the corresponding input
 
+**Server side implementation**
+Example for [NodeJs](http://nodejs.org/) as a web server using [express.js](http://expressjs.com/) and [PostgreSql](http://www.postgresql.org/) as a database.
+
+Set Route:
+```
+router.post('/api/article/update', routes.api.articleUpdateField);
+```
+Implementation for route:
+```
+var query = require('pg-query');
+var squel = require("squel");
+squel.useFlavour('postgres');
+var sqlOptions = { autoQuoteAliasNames: false };
+query.connectionParameters = 'postgres://postgres:mypassword@localhost:5432/Articles'; // example connection
+
+exports.articleUpdateField = function (req, res) {
+    var id = parseInt(req.body.id);
+
+    if (id) {
+        var sql = squel.update()
+            .table('tblArticles')
+            .set(req.body.field, req.body.val)
+            .where('id = ?', id)
+            .toParam();
+
+        query(sql.text, sql.values, function(err, rows, result) {
+            if (err) {
+                console.log(err);
+                res.status(500).end();
+            } else {
+                res.end();
+            }
+        });
+    } else {
+        res.status(500).end();
+    }
+};
+```
+
 Credits
 -------------
-Inspired by an article written by Adam Albrecht: ["How to Auto-Save your model in Angular.js using $watch and a Debounce function."](http://adamalbrecht.com/2013/10/30/auto-save-your-model-in-angular-js-with-watch-and-debounce/)
+Inspired by an article written by Adam Albrecht: "[How to Auto-Save your model in Angular.js using $watch and a Debounce function.](http://adamalbrecht.com/2013/10/30/auto-save-your-model-in-angular-js-with-watch-and-debounce/)"
