@@ -92,9 +92,10 @@ angular.module('ng-auto-save', [])
                     function changeEnabled(elArr, key, shouldEnable) {
                         for (var j = 0, jl = elArr.length; j < jl; j++) {
                             if (elArr[j].ngModel == key) {
-                                if(shouldEnable)
+                                if (shouldEnable) {
                                     elArr[j].el.removeAttr('disabled');
-                                else
+                                    elArr[j].el[0].focus();
+                                } else
                                     elArr[j].el.attr('disabled', 'disabled');
                                 break;
                             }
