@@ -61,7 +61,7 @@ angular.module('ng-auto-save', [])
                         }
                     }
                 },
-                link: function($scope, $elem, $attrs) {
+                link: function($scope) {
                     $scope.$on('$destroy', function() {
                         savingEls.length = 0;
                         savedEls.length = 0;
@@ -88,43 +88,43 @@ angular.module('ng-auto-save', [])
                     $scope.$watch(ngModel, function(newVal, oldVal) {
                         if (newVal != oldVal && (lastValidVal || newVal != lastValidVal )) {
                             if (form.$valid) lastValidVal = newVal;
-                            debounceSave(field, newVal, ngModel);
+                            debounceSave(field, newVal);
                         }
                     });
 
-                    function debounceSave(prop, value, key) {
+                    function debounceSave(col, value) {
                         if (debounce) {
                             if (timeout) {
                                 $timeout.cancel(timeout);
                             }
                             timeout = $timeout(function () {
-                                save(prop, value, key);
+                                save(col, value);
                             }, debounce);
                         } else {
-                            save(prop, value, key);
+                            save(col, value);
                         }
                     }
 
-                    function save(prop, value, key) {
+                    function save(col, value) {
                         if (form.$valid) {
-                            autoSaveCtrl.changeSavingVisibility(key, true);
-                            autoSaveCtrl.changeSavedVisibility(key, false);
+                            autoSaveCtrl.changeSavingVisibility(col, true);
+                            autoSaveCtrl.changeSavedVisibility(col, false);
                             changeEnabled(false);
                             
-                            $scope[autoSaveFnName](prop, value).then(
+                            $scope[autoSaveFnName](col, value).then(
                                 function () {
-                                    autoSaveCtrl.changeSavingVisibility(key, false);
-                                    autoSaveCtrl.changeSavedVisibility(key, true);
+                                    autoSaveCtrl.changeSavingVisibility(col, false);
+                                    autoSaveCtrl.changeSavedVisibility(col, true);
                                     changeEnabled(true);
                                 },
-                                    function (error) {
+                                function (error) {
                                     console.log(error);
-                                    autoSaveCtrl.changeSavingVisibility(key, false);
+                                    autoSaveCtrl.changeSavingVisibility(col, false);
                                     changeEnabled(true);
                                 }
                             );
                         } else {
-                            autoSaveCtrl.changeSavedVisibility(key, false);
+                            autoSaveCtrl.changeSavedVisibility(col, false);
                             changeEnabled(true);
                         }
                     }
