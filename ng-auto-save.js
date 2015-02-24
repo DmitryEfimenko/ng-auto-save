@@ -60,6 +60,12 @@ angular.module('ng-auto-save', [])
                             }
                         }
                     }
+                },
+                link: function($scope, $elem, $attrs) {
+                    $scope.$on('$destroy', function() {
+                        savingEls.length = 0;
+                        savedEls.length = 0;
+                    });
                 }
             };
         }
