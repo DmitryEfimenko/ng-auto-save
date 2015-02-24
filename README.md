@@ -51,8 +51,8 @@ Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages
 				<label>Name</label>
 				<input ng-model="article.name" required auto-save-field="name" name="article.name">
 			</md-input-container>
-			<span class="fa fa-gear fa-spin" auto-saving="article.name"></span>
-			<span class="fa fa-check-square-o" auto-saved="article.name"></span>
+			<span class="fa fa-gear fa-spin" auto-saving="name"></span>
+			<span class="fa fa-check-square-o" auto-saved="name"></span>
 		</div>
 
 		<div ng-messages for="formEditArticle['article.name'].$error">
@@ -65,8 +65,8 @@ Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages
 * `auto-save="updateField"` - must be applied to the `<form>`. It takes the name of the function used to save record.
 * `auto-save-debounce="1000"` - specify how long to wait for input before saving
 * `auto-save-field="name"` - must be applied to an input with attribute `ng-model`. The "name" here is the name of the column in the table to be updated.
-* `auto-saving="article.name"` - apply this directive to an element that you want to show up when saving is in progress. The value of the attribute must be set to the value of 'ng-model' applied to the corresponding input
-* `auto-saved="article.name"` - apply this directive to an element that you want to show up when saving is in complete successfully. The value of the attribute must be set to the value of 'ng-model' applied to the corresponding input
+* `auto-saving="name"` - apply this directive to an element that you want to show up when saving is in progress. The value of the attribute must be set to the value of 'auto-save-field' applied to the corresponding input
+* `auto-saved="name"` - apply this directive to an element that you want to show up when saving is in complete successfully. The value of the attribute must be set to the value of 'auto-save-field' applied to the corresponding input
 
 **Server side implementation**
 Example for [NodeJs](http://nodejs.org/) as a web server using [express.js](http://expressjs.com/) and [PostgreSql](http://www.postgresql.org/) as a database.
