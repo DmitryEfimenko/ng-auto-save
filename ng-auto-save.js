@@ -9,6 +9,7 @@ angular.module('ng-auto-save', [])
     .service('autoSaveService', [function() {
         var self = this;
         self.autoSaveFnName = undefined;
+        self.key = undefined;
         self.debounce = undefined;
 
         self.setAutoSaveFnName = function(name) {
@@ -16,6 +17,12 @@ angular.module('ng-auto-save', [])
         };
         self.getAutoSaveFnName = function () {
             return self.autoSaveFnName;
+        };
+        self.setKey = function (k) {
+            self.key = k;
+        };
+        self.getKey = function () {
+            return self.key;
         };
         self.setDebounce = function (d) {
             self.debounce = d;
@@ -34,24 +41,25 @@ angular.module('ng-auto-save', [])
                 require: 'form',
                 controller: function($scope, $element, $attrs) {
                     autoSaveService.setAutoSaveFnName($attrs.autoSave);
+                    autoSaveService.setKey($scope.$eval($attrs.autoSaveKey));
                     autoSaveService.setDebounce($attrs.autoSaveDebounce);
 
-                    this.registerSavingEl = function(key, el) {
-                        savingEls.push({ key: key, el: el });
+                    this.registerSavingEl = function(col, el) {
+                        savingEls.push({ col: col, el: el });
                     };
-                    this.registerSavedEl = function(key, el) {
-                        savedEls.push({ key: key, el: el });
+                    this.registerSavedEl = function(col, el) {
+                        savedEls.push({ col: col, el: el });
                     };
-                    this.changeSavingVisibility = function(key, shouldShow) {
-                        changeVisibility(savingEls, key, shouldShow);
+                    this.changeSavingVisibility = function(col, shouldShow) {
+                        changeVisibility(savingEls, col, shouldShow);
                     };
-                    this.changeSavedVisibility = function(key, shouldShow) {
-                        changeVisibility(savedEls, key, shouldShow);
+                    this.changeSavedVisibility = function(col, shouldShow) {
+                        changeVisibility(savedEls, col, shouldShow);
                     };
 
-                    function changeVisibility(elArr, key, shouldShow) {
+                    function changeVisibility(elArr, col, shouldShow) {
                         for (var j = 0, jl = elArr.length; j < jl; j++) {
-                            if (elArr[j].key == key) {
+                            if (elArr[j].col == col) {
                                 if(shouldShow)
                                     elArr[j].el.removeClass('ng-hide');
                                 else
@@ -84,13 +92,16 @@ angular.module('ng-auto-save', [])
                     var timeout = null;
                     var autoSaveFnName = autoSaveService.getAutoSaveFnName();
                     var debounce = autoSaveService.getDebounce();
+                    var key = autoSaveService.getKey();
 
-                    $scope.$watch(ngModel, function(newVal, oldVal) {
-                        if (newVal != oldVal && (lastValidVal || newVal != lastValidVal )) {
-                            if (form.$valid) lastValidVal = newVal;
-                            debounceSave(field, newVal);
-                        }
-                    });
+                    if (key) {
+                        $scope.$watch(ngModel, function(newVal, oldVal) {
+                            if (newVal != oldVal && (lastValidVal || newVal != lastValidVal)) {
+                                if (form.$valid) lastValidVal = newVal;
+                                debounceSave(field, newVal);
+                            }
+                        });
+                    }
 
                     function debounceSave(col, value) {
                         if (debounce) {
@@ -111,7 +122,7 @@ angular.module('ng-auto-save', [])
                             autoSaveCtrl.changeSavedVisibility(col, false);
                             changeEnabled(false);
                             
-                            $scope[autoSaveFnName](col, value).then(
+                            $scope[autoSaveFnName](col, value, key).then(
                                 function () {
                                     autoSaveCtrl.changeSavingVisibility(col, false);
                                     autoSaveCtrl.changeSavedVisibility(col, true);
