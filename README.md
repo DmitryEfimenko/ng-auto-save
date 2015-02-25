@@ -16,35 +16,28 @@ TODO
 
 Example:
 -------------
-All you have to do in the controller is to provide a function to save record. This must return a promise and it takes two arguments:
+All you have to do in the controller is to provide a function to save record. This must return a promise and it takes three arguments:
 * `field` - corresponds to the column in the table in database that will be updated
 * `val` - new value to save
-
-it's assumed that the key for the "where" clause is available in controller
+* `key` - the constraint that usually goes in the the `where` clause of the sql update statement
 
 **index.js - inside Controller:**
 ```
-$scope.updateField = function (field, val) {
-	var deferred = $q.defer();
-
-	if ($scope.article.id) {
-		return $http.post('/api/article/update', { id: $scope.article.id, field: field, val: val })
-			.success(function () {
-				articleRef[field] = $scope.article[field];
-			})
-			.error(function(error) {
-				console.log(error);
-			});
-	} 
-	deferred.reject();
-	return deferred.promise;
+$scope.updateField = function (field, val, key) {
+	return $http.post('/api/article/update', { id: key, field: field, val: val })
+		.success(function () {
+			articleRef[field] = $scope.article[field];
+		})
+		.error(function(error) {
+			console.log(error);
+		});
 };
 ```
 
 **index.html:**
 Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages](https://docs.angularjs.org/api/ngMessages/directive/ngMessages), [font-awesome](http://fortawesome.github.io/Font-Awesome/)
 ```
-<form name="formEditArticle" novalidate auto-save="updateField" auto-save-debounce="1000">
+<form name="formEditArticle" novalidate auto-save="updateField" auto-save-key="article.id" auto-save-debounce="1000">
 	<md-content layout="column">
 		<div layout="row" layout-align="start center">
 			<md-input-container>
@@ -63,6 +56,7 @@ Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages
 ```
 **Explanation of directives used:**
 * `auto-save="updateField"` - must be applied to the `<form>`. It takes the name of the function used to save record.
+* `auto-save-key="article.id"` - `article.id` here is the primary key in the table Articles. If it is undefined, the `auto-save` function will not execute (thus making it easy to customize insert functionality).
 * `auto-save-debounce="1000"` - specify how long to wait for input before saving
 * `auto-save-field="name"` - must be applied to an input with attribute `ng-model`. The "name" here is the name of the column in the table to be updated.
 * `auto-saving="name"` - apply this directive to an element that you want to show up when saving is in progress. The value of the attribute must be set to the value of 'auto-save-field' applied to the corresponding input
