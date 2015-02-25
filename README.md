@@ -12,7 +12,7 @@ angular.module('app', ['ng-auto-save']);
 
 Demo:
 -------------
-TODO
+[Plunker Live Demo](http://plnkr.co/edit/7HIAXH?p=preview) - Exchange with the database is imitated.
 
 Example:
 -------------
