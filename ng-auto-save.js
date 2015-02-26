@@ -120,7 +120,8 @@ angular.module('ng-auto-save', [])
                                 runQueue();
                             }, debounce);
                         } else {
-                            save(col, value);
+                            queue.push({ col: col, value: value });
+                            runQueue();
                         }
                     }
 
