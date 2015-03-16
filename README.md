@@ -17,9 +17,9 @@ Demo:
 Example:
 -------------
 All you have to do in the controller is to provide a function to save record. This must return a promise and it takes three arguments:
-* `field` - corresponds to the column in the table in database that will be updated
-* `val` - new value to save
-* `key` - the constraint that usually goes in the the `where` clause of the sql update statement
+* **`field`** - corresponds to the column in the table in database that will be updated
+* **`val`** - new value to save
+* **`key`** - the constraint that usually goes in the the `where` clause of the sql update statement
 
 **index.js - inside Controller:**
 ```JavaScript
@@ -55,12 +55,12 @@ Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages
 </form>
 ```
 **Explanation of directives used:**
-* `auto-save="updateField"` - must be applied to the `<form>`. It takes the name of the function used to save record.
-* `auto-save-key="article.id"` - `article.id` here is the primary key in the table Articles. If it is undefined, the `auto-save` function will not execute (thus making it easy to customize insert functionality).
-* `auto-save-debounce="1000"` - specify how long to wait for input before saving
-* `auto-save-field="name"` - must be applied to an input with attribute `ng-model`. The "name" here is the name of the column in the table to be updated.
-* `auto-saving="name"` - apply this directive to an element that you want to show up when saving is in progress. The value of the attribute must be set to the value of 'auto-save-field' applied to the corresponding input
-* `auto-saved="name"` - apply this directive to an element that you want to show up when saving is in complete successfully. The value of the attribute must be set to the value of 'auto-save-field' applied to the corresponding input
+* **`auto-save="updateField"`** - must be applied to the `<form>`. It takes the name of the function used to save record.
+* **`auto-save-key="article.id"`** - `article.id` here is the primary key in the table Articles. If it is undefined, the `auto-save` function will not execute (thus making it easy to customize insert functionality).
+* **`auto-save-debounce="1000"`** - specify how long to wait for input before saving
+* **`auto-save-field="name"`** - must be applied to an input with attribute `ng-model`. The "name" here is the name of the column in the table to be updated.
+* **`auto-saving="name"`** - apply this directive to an element that you want to show up when saving is in progress. The value of the attribute must be set to the value of 'auto-save-field' applied to the corresponding input
+* **`auto-saved="name"`** - apply this directive to an element that you want to show up when saving is in complete successfully. The value of the attribute must be set to the value of 'auto-save-field' applied to the corresponding input
 
 **Server side implementation**
 Example for [NodeJs](http://nodejs.org/) as a web server using [express.js](http://expressjs.com/) and [PostgreSql](http://www.postgresql.org/) as a database.
