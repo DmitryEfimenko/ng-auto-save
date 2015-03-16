@@ -22,7 +22,7 @@ All you have to do in the controller is to provide a function to save record. Th
 * `key` - the constraint that usually goes in the the `where` clause of the sql update statement
 
 **index.js - inside Controller:**
-```
+```JavaScript
 $scope.updateField = function (field, val, key) {
 	return $http.post('/api/article/update', { id: key, field: field, val: val })
 		.success(function () {
@@ -36,7 +36,7 @@ $scope.updateField = function (field, val, key) {
 
 **index.html:**
 Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages](https://docs.angularjs.org/api/ngMessages/directive/ngMessages), [font-awesome](http://fortawesome.github.io/Font-Awesome/)
-```
+```HTML
 <form name="formEditArticle" novalidate auto-save="updateField" auto-save-key="article.id" auto-save-debounce="1000">
 	<md-content layout="column">
 		<div layout="row" layout-align="start center">
@@ -66,11 +66,11 @@ Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages
 Example for [NodeJs](http://nodejs.org/) as a web server using [express.js](http://expressjs.com/) and [PostgreSql](http://www.postgresql.org/) as a database.
 
 Set Route:
-```
+```JavaScript
 router.post('/api/article/update', routes.api.articleUpdateField);
 ```
 Implementation for route:
-```
+```JavaScript
 var query = require('pg-query');
 var squel = require("squel");
 squel.useFlavour('postgres');
