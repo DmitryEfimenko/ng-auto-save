@@ -6,7 +6,7 @@ Set of directives to save inputs' values as user types
 Installation:
 -------------
 *Reference module in your app*
-```
+```JavaScript
 angular.module('app', ['ng-auto-save']);
 ```
 
