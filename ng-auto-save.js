@@ -1,25 +1,17 @@
-'use strict';
 
-/*
-  * Source: https://github.com/DmitryEfimenko/ng-auto-save
-  * 
-*/
-
-angular.module('ng-auto-save', [])
-    .directive('autoSave', [
-    function () {
+    var autoSaveModule = angular.module('ng-auto-save', []);
+    function autoSaveDirective() {
         var savingEls = [];
         var savedEls = [];
-        
         return {
             restrict: 'A',
-            require: 'form',
             controller: function ($scope, $element, $attrs) {
+                if ($element[0].tagName.toLowerCase() != 'form')
+                    throw Error('directive auto-save must be applied on tag <form>');
                 var self = this;
-                self.key = $scope.$eval($attrs.autoSaveKey);
+                self.key = undefined;
                 self.autoSaveFnName = $attrs.autoSave;
                 self.debounce = $attrs.autoSaveDebounce;
-                
                 self.registerSavingEl = function (col, el) {
                     savingEls.push({ col: col, key: self.key, el: el });
                 };
@@ -32,7 +24,6 @@ angular.module('ng-auto-save', [])
                 self.changeSavedVisibility = function (col, shouldShow) {
                     changeVisibility(savedEls, col, shouldShow);
                 };
-                
                 function changeVisibility(elArr, col, shouldShow) {
                     for (var j = 0, jl = elArr.length; j < jl; j++) {
                         if (elArr[j].col == col && elArr[j].key == self.key) {
@@ -44,9 +35,26 @@ angular.module('ng-auto-save', [])
                         }
                     }
                 }
-
             },
-            link: function ($scope) {
+            link: function ($scope, $elem, $attrs, $ctrl) {
+                var key = $scope.$eval($attrs.autoSaveKey);
+                if (!key) {
+                    $scope.$watch($attrs.autoSaveKey, function (newVal, oldVal) {
+                        console.log(newVal, oldVal)
+                        if (newVal) {
+                            
+                            $ctrl.key = $scope.$eval($attrs.autoSaveKey);
+                            keyReady();
+                        }
+                    });
+                }
+                else {
+                    $ctrl.key = key;
+                    keyReady();
+                }
+                function keyReady() {
+                    $scope.$broadcast('ngAutoSave.keyReady');
+                }
                 $scope.$on('$destroy', function () {
                     savingEls.length = 0;
                     savedEls.length = 0;
@@ -54,10 +62,9 @@ angular.module('ng-auto-save', [])
             }
         };
     }
-])
-    .directive('autoSaveField', [
-    '$timeout',
-    function ($timeout) {
+    
+    autoSaveFieldDirective.$inject = ['$timeout'];
+    function autoSaveFieldDirective($timeout) {
         return {
             restrict: 'A',
             require: ['^autoSave', '^form', 'ngModel'],
@@ -70,26 +77,31 @@ angular.module('ng-auto-save', [])
                 var timeout = null;
                 var autoSaveFnName = autoSaveCtrl.autoSaveFnName;
                 var debounce = autoSaveCtrl.debounce;
-                var key = autoSaveCtrl.key;
+                var key = undefined;
                 var queue = [];
-                
-                if (!$scope.autoSaving) $scope.autoSaving = {};
-                if (!$scope.autoSaving[field]) $scope.autoSaving[field] = {};
-                if (!$scope.autoSaving[field][key]) $scope.autoSaving[field][key] = false;
-                
-                if (!$scope.autoSaved) $scope.autoSaved = {};
-                if (!$scope.autoSaved[field]) $scope.autoSaved[field] = {};
-                if (!$scope.autoSaved[field][key]) $scope.autoSaved[field][key] = false;
-                
-                if (key) {
+                $scope.$on('ngAutoSave.keyReady', function () {
+                    key = autoSaveCtrl.key;
                     $scope.$watch(ngModel, function (newVal, oldVal) {
+                        console.log(ngModel, ': newVal', newVal, '; oldVal', oldVal);
                         if (newVal != oldVal && (lastValidVal || newVal != lastValidVal)) {
-                            if (form.$valid) lastValidVal = newVal;
+                            if (form.$valid)
+                                lastValidVal = newVal;
                             debounceSave(field, newVal);
                         }
                     });
-                }
-                
+                    if (!$scope.autoSaving)
+                        $scope.autoSaving = {};
+                    if (!$scope.autoSaving[field])
+                        $scope.autoSaving[field] = {};
+                    if (!$scope.autoSaving[field][key])
+                        $scope.autoSaving[field][key] = false;
+                    if (!$scope.autoSaved)
+                        $scope.autoSaved = {};
+                    if (!$scope.autoSaved[field])
+                        $scope.autoSaved[field] = {};
+                    if (!$scope.autoSaved[field][key])
+                        $scope.autoSaved[field][key] = false;
+                });
                 function debounceSave(col, value) {
                     if (debounce) {
                         if (timeout) {
@@ -99,40 +111,36 @@ angular.module('ng-auto-save', [])
                             queue.push({ col: col, value: value });
                             runQueue();
                         }, debounce);
-                    } else {
+                    }
+                    else {
                         queue.push({ col: col, value: value });
                         runQueue();
                     }
                 }
-                
                 function runQueue() {
-                    if (!getSaving()) {
+                    var isSaving = getSaving();
+                    if (!isSaving) {
                         var args = queue.shift();
                         if (args)
                             save(args.col, args.value, runQueue);
                     }
                 }
-                
                 function getSaving() {
                     return $scope.autoSaving[field][key];
                 }
-                
                 function setSaving(val) {
                     $scope.autoSaving[field][key] = val;
                 }
-                
                 function setSaved(val) {
                     $scope.autoSaved[field][key] = val;
                 }
-                
                 function save(col, value, cb) {
                     if (form.$valid) {
                         setSaving(true);
                         autoSaveCtrl.changeSavingVisibility(col, true);
                         autoSaveCtrl.changeSavedVisibility(col, false);
-                        
-                        $scope[autoSaveFnName](col, value, key).then(
-                            function () {
+                        try {
+                            $scope[autoSaveFnName](col, value, key).then(function () {
                                 autoSaveCtrl.changeSavingVisibility(col, false);
                                 autoSaveCtrl.changeSavedVisibility(col, true);
                                 setSaving(false);
@@ -141,26 +149,28 @@ angular.module('ng-auto-save', [])
                                     setSaved(false);
                                 }, 3000);
                                 cb();
-                            },
-                                function (error) {
+                            }, function (error) {
                                 console.log(error);
                                 autoSaveCtrl.changeSavingVisibility(col, false);
                                 setSaving(false);
                                 cb();
-                            }
-                        );
-                    } else {
+                            });
+                        }
+                        catch (e) {
+                            console.log('$scope[autoSaveFnName]:', $scope[autoSaveFnName], '; autoSaveFnName:', autoSaveFnName, '; col:', col, '; value:', value, '; key:', key);
+                            console.log(e.stack);
+                        }
+                    }
+                    else {
                         autoSaveCtrl.changeSavedVisibility(col, false);
                         cb();
                     }
                 }
-
             }
         };
     }
-])
-    .directive('autoSaving', [
-    function () {
+    
+    function autoSavingDirective() {
         return {
             restrict: 'A',
             require: '^autoSave',
@@ -170,9 +180,8 @@ angular.module('ng-auto-save', [])
             }
         };
     }
-])
-    .directive('autoSaved', [
-    function () {
+    
+    function autoSavedDirective() {
         return {
             restrict: 'A',
             require: '^autoSave',
@@ -182,4 +191,8 @@ angular.module('ng-auto-save', [])
             }
         };
     }
-]);
+    
+    autoSaveModule.directive('autoSave', autoSaveDirective);
+    autoSaveModule.directive('autoSaveField', autoSaveFieldDirective);
+    autoSaveModule.directive('autoSaving', autoSavingDirective);
+    autoSaveModule.directive('autoSaved', autoSavedDirective);
