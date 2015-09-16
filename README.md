@@ -101,10 +101,6 @@ exports.articleUpdateField = function (req, res) {
 };
 ```
 
-Gotchas
--------------
-If you are using a dialog to edit a record (like in the Demo), be sure to load that record in the `resolve` function for the state rather than in the controller for that dialog. If latter is done, you'll see your inputs attempting to auto save when dialog shows up.
-
 Credits
 -------------
 Inspired by an article written by Adam Albrecht: "[How to Auto-Save your model in Angular.js using $watch and a Debounce function.](http://adamalbrecht.com/2013/10/30/auto-save-your-model-in-angular-js-with-watch-and-debounce/)"
