@@ -84,7 +84,15 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
             var key = undefined;
             var queue = [];
 
-            $scope.$on('ngAutoSave.keyReady', () => {
+            if (autoSaveCtrl.key == undefined) {
+                $scope.$on('ngAutoSave.keyReady', () => {
+                    init();
+                });
+            } else {
+                init();
+            }
+
+            function init() {
                 key = autoSaveCtrl.key;
                 $scope.$watch(ngModel, function (newVal, oldVal) {
                     //console.log(ngModel, ': newVal', newVal, '; oldVal', oldVal);
@@ -101,8 +109,7 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
                 if (!$scope.autoSaved) $scope.autoSaved = {};
                 if (!$scope.autoSaved[field]) $scope.autoSaved[field] = {};
                 if (!$scope.autoSaved[field][key]) $scope.autoSaved[field][key] = false;
-            });
-
+            }
 
             function debounceSave(col, value) {
                 if (debounce) {
