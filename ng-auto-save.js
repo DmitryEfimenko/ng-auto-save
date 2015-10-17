@@ -79,10 +79,18 @@
                 var debounce = autoSaveCtrl.debounce;
                 var key = undefined;
                 var queue = [];
-                $scope.$on('ngAutoSave.keyReady', function () {
+                if (autoSaveCtrl.key == undefined) {
+                    $scope.$on('ngAutoSave.keyReady', function () {
+                        init();
+                    });
+                }
+                else {
+                    init();
+                }
+                function init() {
                     key = autoSaveCtrl.key;
                     $scope.$watch(ngModel, function (newVal, oldVal) {
-                        console.log(ngModel, ': newVal', newVal, '; oldVal', oldVal);
+                        //console.log(ngModel, ': newVal', newVal, '; oldVal', oldVal);
                         if (newVal != oldVal && (lastValidVal || newVal != lastValidVal)) {
                             if (form.$valid)
                                 lastValidVal = newVal;
@@ -101,7 +109,7 @@
                         $scope.autoSaved[field] = {};
                     if (!$scope.autoSaved[field][key])
                         $scope.autoSaved[field][key] = false;
-                });
+                }
                 function debounceSave(col, value) {
                     if (debounce) {
                         if (timeout) {
