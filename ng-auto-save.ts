@@ -2,68 +2,92 @@ import angular = require('angular');
 
 var autoSaveModule = angular.module('ng-auto-save', []);
 
-export function autoSaveDirective(): angular.IDirective {
-    var savingEls = [];
-    var savedEls = [];
 
+
+export function autoSaveDirective(): angular.IDirective {
     return {
         restrict: 'A',
-        controller: function ($scope, $element, $attrs) {
-            if ($element[0].tagName.toLowerCase() != 'form') throw Error('directive auto-save must be applied on tag <form>');
-            var self = this;
-            
-            self.key = undefined;
-            self.autoSaveFnName = $attrs.autoSave;
-            self.debounce = $attrs.autoSaveDebounce;
-            self.registerSavingEl = function (col, el) {
-                savingEls.push({ col: col, key: self.key, el: el });
-            };
-            self.registerSavedEl = function (col, el) {
-                savedEls.push({ col: col, key: self.key, el: el });
-            };
-            self.changeSavingVisibility = function (col, shouldShow) {
-                changeVisibility(savingEls, col, shouldShow);
-            };
-            self.changeSavedVisibility = function (col, shouldShow) {
-                changeVisibility(savedEls, col, shouldShow);
-            };
+        controller: AutoSaveController,
+        scope: false
+    }
+}
 
-            function changeVisibility(elArr, col, shouldShow) {
-                for (var j = 0, jl = elArr.length; j < jl; j++) {
-                    if (elArr[j].col == col && elArr[j].key == self.key) {
-                        if (shouldShow)
-                            elArr[j].el.removeClass('ng-hide');
-                        else
-                            elArr[j].el.addClass('ng-hide');
-                        break;
-                    }
+class AutoSaveController {
+    private savingEls = [];
+    private savedEls = [];
+    key: string = undefined;
+    autoSaveFnName: string;
+    autoSaveFn: (col: string, value: any, key: any)=> ng.IPromise<any>;
+    debounce: number;
+
+    static $inject = ['$scope', '$element', '$attrs'];
+    constructor(private $scope, $element, private $attrs) {
+        if ($element[0].tagName.toLowerCase() != 'form') throw Error('directive auto-save must be applied on tag <form>');
+        if (!$attrs.autoSave) throw Error('attribute auto-save of such directive must have a value - the name of the saving function');
+
+        this.autoSaveFnName = this.$attrs.autoSave;
+        this.key = $scope.$eval($attrs.autoSaveKey);
+        this.debounce = $attrs.autoSaveDebounce;
+        this.getAutoSaveFunction();
+
+        if (!this.key) {
+            $scope.$watch($attrs.autoSaveKey, (newVal, oldVal) => {
+                if (newVal) {
+                    this.key = $scope.$eval($attrs.autoSaveKey);
+                    this.keyReady();
                 }
-            }
-
-        },
-        link: function ($scope, $elem, $attrs: any, $ctrl) {
-            var key = $scope.$eval($attrs.autoSaveKey);
-            if (!key) {
-                $scope.$watch($attrs.autoSaveKey, (newVal, oldVal) => {
-                    if (newVal) {
-                        $ctrl.key = $scope.$eval($attrs.autoSaveKey);
-                        keyReady();
-                    }
-                })
-            } else {
-                $ctrl.key = key;
-                keyReady();
-            }
-
-            function keyReady() {
-                $scope.$broadcast('ngAutoSave.keyReady');
-            }
-
-            $scope.$on('$destroy', function () {
-                savingEls.length = 0;
-                savedEls.length = 0;
-            });
+            })
+        } else {
+            this.keyReady();
         }
+    }
+
+    registerSavingEl(col, el) {
+        this.savingEls.push({ col: col, key: this.key, el: el });
+    }
+
+    registerSavedEl(col, el) {
+        this.savedEls.push({ col: col, key: this.key, el: el });
+    }
+
+    changeSavingVisibility(col, shouldShow) {
+        this.changeVisibility(this.savingEls, col, shouldShow);
+    }
+
+    changeSavedVisibility(col, shouldShow) {
+        this.changeVisibility(this.savedEls, col, shouldShow);
+    }
+
+    private changeVisibility(elArr, col, shouldShow) {
+        for (var j = 0, jl = elArr.length; j < jl; j++) {
+            if (elArr[j].col == col && elArr[j].key == this.key) {
+                if (shouldShow)
+                    elArr[j].el.removeClass('ng-hide');
+                else
+                    elArr[j].el.addClass('ng-hide');
+                break;
+            }
+        }
+    }
+
+    private getAutoSaveFunction() {
+        var parts = this.$attrs.autoSave.split('.');
+        var bindingContext = this.$scope;
+        this.autoSaveFn = this.$scope[parts[0]];
+        if (parts.length > 1) {
+            for (var i = 1, l = parts.length; i < l; i++) {
+                this.autoSaveFn = this.autoSaveFn[parts[i]];
+                bindingContext = bindingContext[parts[i - 1]];
+            }
+        }
+        if (this.autoSaveFn)
+            this.autoSaveFn = this.autoSaveFn.bind(bindingContext);
+        else
+            console.error('could not find auto-saving function', this.$attrs.autoSave, 'on the scope');
+    }
+
+    private keyReady() {
+        this.$scope.$broadcast('ngAutoSave.keyReady');
     }
 }
 
@@ -73,13 +97,12 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
         restrict: 'A',
         require: ['^autoSave', '^form', 'ngModel'],
         link: function ($scope, $elem, $attrs: any, $ctrls) {
-            var autoSaveCtrl = $ctrls[0];
+            var autoSaveCtrl: AutoSaveController = $ctrls[0];
             var form = $ctrls[1];
             var lastValidVal = undefined;
             var ngModel = $attrs.ngModel;
             var field = $attrs.autoSaveField;
             var timeout = null;
-            var autoSaveFnName = autoSaveCtrl.autoSaveFnName;
             var debounce = autoSaveCtrl.debounce;
             var key = undefined;
             var queue = [];
@@ -93,6 +116,8 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
             }
 
             function init() {
+                //console.log(autoSaveCtrl.key, autoSaveCtrl.autoSaveFn);
+                
                 key = autoSaveCtrl.key;
                 $scope.$watch(ngModel, function (newVal, oldVal) {
                     //console.log(ngModel, ': newVal', newVal, '; oldVal', oldVal);
@@ -153,7 +178,8 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
                     autoSaveCtrl.changeSavingVisibility(col, true);
                     autoSaveCtrl.changeSavedVisibility(col, false);
                     try {
-                        $scope[autoSaveFnName](col, value, key).then(
+                        //console.log(autoSaveCtrl.autoSaveFn);
+                        autoSaveCtrl.autoSaveFn(col, value, key).then(
                             function () {
                                 autoSaveCtrl.changeSavingVisibility(col, false);
                                 autoSaveCtrl.changeSavedVisibility(col, true);
@@ -170,9 +196,9 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
                                 setSaving(false);
                                 cb();
                             }
-                            );
+                        );
                     } catch (e) {
-                        console.log('$scope[autoSaveFnName]:', $scope[autoSaveFnName], '; autoSaveFnName:', autoSaveFnName, '; col:', col, '; value:', value, '; key:', key);
+                        console.log('error in auto-save. col:', col, '; value:', value, '; key:', key);
                         console.log(e.stack);
                     }
                 } else {
@@ -189,7 +215,7 @@ export function autoSavingDirective(): angular.IDirective {
     return {
         restrict: 'A',
         require: '^autoSave',
-        link: function ($scope, $elem, $attrs: any, autoSaveCtrl) {
+        link: function ($scope, $elem, $attrs: any, autoSaveCtrl: AutoSaveController) {
             $elem.addClass('ng-hide');
             autoSaveCtrl.registerSavingEl($attrs.autoSaving, $elem);
         }
@@ -200,7 +226,7 @@ export function autoSavedDirective(): angular.IDirective {
     return {
         restrict: 'A',
         require: '^autoSave',
-        link: function ($scope, $elem, $attrs: any, autoSaveCtrl) {
+        link: function ($scope, $elem, $attrs: any, autoSaveCtrl: AutoSaveController) {
             $elem.addClass('ng-hide');
             autoSaveCtrl.registerSavedEl($attrs.autoSaved, $elem);
         }
