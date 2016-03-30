@@ -116,8 +116,6 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
             }
 
             function init() {
-                //console.log(autoSaveCtrl.key, autoSaveCtrl.autoSaveFn);
-                
                 key = autoSaveCtrl.key;
                 $scope.$watch(ngModel, function (newVal, oldVal) {
                     //console.log(ngModel, ': newVal', newVal, '; oldVal', oldVal);
@@ -178,7 +176,6 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
                     autoSaveCtrl.changeSavingVisibility(col, true);
                     autoSaveCtrl.changeSavedVisibility(col, false);
                     try {
-                        //console.log(autoSaveCtrl.autoSaveFn);
                         autoSaveCtrl.autoSaveFn(col, value, key).then(
                             function () {
                                 autoSaveCtrl.changeSavingVisibility(col, false);
@@ -217,7 +214,9 @@ export function autoSavingDirective(): angular.IDirective {
         require: '^autoSave',
         link: function ($scope, $elem, $attrs: any, autoSaveCtrl: AutoSaveController) {
             $elem.addClass('ng-hide');
-            autoSaveCtrl.registerSavingEl($attrs.autoSaving, $elem);
+            $scope.$on('ngAutoSave.keyReady', () => {
+                autoSaveCtrl.registerSavingEl($attrs.autoSaving, $elem);
+            });
         }
     }
 }
@@ -228,7 +227,9 @@ export function autoSavedDirective(): angular.IDirective {
         require: '^autoSave',
         link: function ($scope, $elem, $attrs: any, autoSaveCtrl: AutoSaveController) {
             $elem.addClass('ng-hide');
-            autoSaveCtrl.registerSavedEl($attrs.autoSaved, $elem);
+            $scope.$on('ngAutoSave.keyReady', () => {
+                autoSaveCtrl.registerSavedEl($attrs.autoSaved, $elem);
+            });
         }
     }
 }

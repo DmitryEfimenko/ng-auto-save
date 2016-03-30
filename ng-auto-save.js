@@ -184,7 +184,9 @@
             require: '^autoSave',
             link: function ($scope, $elem, $attrs, autoSaveCtrl) {
                 $elem.addClass('ng-hide');
-                autoSaveCtrl.registerSavingEl($attrs.autoSaving, $elem);
+                $scope.$on('ngAutoSave.keyReady', function() {
+                    autoSaveCtrl.registerSavingEl($attrs.autoSaving, $elem);
+                });
             }
         };
     }
@@ -195,7 +197,9 @@
             require: '^autoSave',
             link: function ($scope, $elem, $attrs, autoSaveCtrl) {
                 $elem.addClass('ng-hide');
-                autoSaveCtrl.registerSavedEl($attrs.autoSaved, $elem);
+                $scope.$on('ngAutoSave.keyReady', function() {
+                    autoSaveCtrl.registerSavedEl($attrs.autoSaved, $elem);
+                });
             }
         };
     }
