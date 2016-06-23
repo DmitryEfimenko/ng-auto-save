@@ -35,7 +35,7 @@ $scope.updateField = function (field, val, key) {
 ```
 
 **index.html:**
-Example uses [anuglar-material](https://material.angularjs.org/#/), [ng-messages](https://docs.angularjs.org/api/ngMessages/directive/ngMessages), [font-awesome](http://fortawesome.github.io/Font-Awesome/)
+Example uses [angular-material](https://material.angularjs.org/#/), [ng-messages](https://docs.angularjs.org/api/ngMessages/directive/ngMessages), [font-awesome](http://fortawesome.github.io/Font-Awesome/)
 ```HTML
 <form name="formEditArticle" novalidate auto-save="updateField" auto-save-key="article.id" auto-save-debounce="1000">
 	<md-content layout="column">
