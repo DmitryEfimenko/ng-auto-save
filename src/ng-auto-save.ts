@@ -2,14 +2,12 @@ import angular = require('angular');
 
 var autoSaveModule = angular.module('ng-auto-save', []);
 
-
-
 export function autoSaveDirective(): angular.IDirective {
     return {
         restrict: 'A',
         controller: AutoSaveController,
         scope: false
-    }
+    };
 }
 
 class AutoSaveController {
@@ -17,13 +15,13 @@ class AutoSaveController {
     private savedEls = [];
     key: string = undefined;
     autoSaveFnName: string;
-    autoSaveFn: (col: string, value: any, key: any)=> ng.IPromise<any>;
+    autoSaveFn: (col: string, value: any, key: any) => ng.IPromise<any>;
     debounce: number;
 
     static $inject = ['$scope', '$element', '$attrs'];
     constructor(private $scope, $element, private $attrs) {
-        if ($element[0].tagName.toLowerCase() != 'form') throw Error('directive auto-save must be applied on tag <form>');
-        if (!$attrs.autoSave) throw Error('attribute auto-save of such directive must have a value - the name of the saving function');
+        if ($element[0].tagName.toLowerCase() !== 'form') { throw Error('directive auto-save must be applied on tag <form>'); }
+        if (!$attrs.autoSave) { throw Error('attribute auto-save of such directive must have a value - the name of the saving function'); }
 
         this.autoSaveFnName = this.$attrs.autoSave;
         this.key = $scope.$eval($attrs.autoSaveKey);
@@ -36,7 +34,7 @@ class AutoSaveController {
                     this.key = $scope.$eval($attrs.autoSaveKey);
                     this.keyReady();
                 }
-            })
+            });
         } else {
             this.keyReady();
         }
@@ -60,11 +58,12 @@ class AutoSaveController {
 
     private changeVisibility(elArr, col, shouldShow) {
         for (var j = 0, jl = elArr.length; j < jl; j++) {
-            if (elArr[j].col == col && elArr[j].key == this.key) {
-                if (shouldShow)
+            if (elArr[j].col === col && elArr[j].key === this.key) {
+                if (shouldShow) {
                     elArr[j].el.removeClass('ng-hide');
-                else
+                } else {
                     elArr[j].el.addClass('ng-hide');
+                }
                 break;
             }
         }
@@ -80,10 +79,11 @@ class AutoSaveController {
                 bindingContext = bindingContext[parts[i - 1]];
             }
         }
-        if (this.autoSaveFn)
+        if (this.autoSaveFn) {
             this.autoSaveFn = this.autoSaveFn.bind(bindingContext);
-        else
+        } else {
             console.error('could not find auto-saving function', this.$attrs.autoSave, 'on the scope');
+        }
     }
 
     private keyReady() {
@@ -107,7 +107,7 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
             var key = undefined;
             var queue = [];
 
-            if (autoSaveCtrl.key == undefined) {
+            if (autoSaveCtrl.key === undefined) {
                 $scope.$on('ngAutoSave.keyReady', () => {
                     init();
                 });
@@ -119,19 +119,19 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
                 key = autoSaveCtrl.key;
                 $scope.$watch(ngModel, function (newVal, oldVal) {
                     //console.log(ngModel, ': newVal', newVal, '; oldVal', oldVal);
-                    if (newVal != oldVal && (lastValidVal || newVal != lastValidVal)) {
-                        if (form.$valid) lastValidVal = newVal;
+                    if (newVal !== oldVal && (lastValidVal || newVal !== lastValidVal)) {
+                        if (form.$valid) { lastValidVal = newVal; }
                         debounceSave(field, newVal);
                     }
                 });
 
-                if (!$scope.autoSaving) $scope.autoSaving = {};
-                if (!$scope.autoSaving[field]) $scope.autoSaving[field] = {};
-                if (!$scope.autoSaving[field][key]) $scope.autoSaving[field][key] = false;
+                if (!$scope.autoSaving) { $scope.autoSaving = {}; }
+                if (!$scope.autoSaving[field]) { $scope.autoSaving[field] = {}; }
+                if (!$scope.autoSaving[field][key]) { $scope.autoSaving[field][key] = false; }
 
-                if (!$scope.autoSaved) $scope.autoSaved = {};
-                if (!$scope.autoSaved[field]) $scope.autoSaved[field] = {};
-                if (!$scope.autoSaved[field][key]) $scope.autoSaved[field][key] = false;
+                if (!$scope.autoSaved) { $scope.autoSaved = {}; }
+                if (!$scope.autoSaved[field]) { $scope.autoSaved[field] = {}; }
+                if (!$scope.autoSaved[field][key]) { $scope.autoSaved[field][key] = false; }
             }
 
             function debounceSave(col, value) {
@@ -153,8 +153,7 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
                 var isSaving = getSaving();
                 if (!isSaving) {
                     var args = queue.shift();
-                    if (args)
-                        save(args.col, args.value, runQueue);
+                    if (args) { save(args.col, args.value, runQueue); }
                 }
             }
 
@@ -205,7 +204,7 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
             }
 
         }
-    }
+    };
 }
 
 export function autoSavingDirective(): angular.IDirective {
@@ -218,7 +217,7 @@ export function autoSavingDirective(): angular.IDirective {
                 autoSaveCtrl.registerSavingEl($attrs.autoSaving, $elem);
             });
         }
-    }
+    };
 }
 
 export function autoSavedDirective(): angular.IDirective {
@@ -231,10 +230,12 @@ export function autoSavedDirective(): angular.IDirective {
                 autoSaveCtrl.registerSavedEl($attrs.autoSaved, $elem);
             });
         }
-    }
+    };
 }
 
 autoSaveModule.directive('autoSave', autoSaveDirective);
 autoSaveModule.directive('autoSaveField', autoSaveFieldDirective);
 autoSaveModule.directive('autoSaving', autoSavingDirective);
 autoSaveModule.directive('autoSaved', autoSavedDirective);
+
+export default autoSaveModule;

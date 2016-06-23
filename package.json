@@ -1,0 +1,37 @@
+{
+  "name": "ng-auto-save",
+  "version": "1.0.0",
+  "description": "Set of angularjs directives to save inputs' values as user types",
+  "main": "dist/src/ng-auto-save.js",
+  "typings": "dist/typings/ng-auto-save.d.ts",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "del": "~2.2.0",
+    "colors": "~1.1.2",
+    "gulp": "gulpjs/gulp#4.0",
+    "gulp-load-plugins": "~1.2.4",
+    "gulp-tslint": "~5.0.0",
+    "gulp-typescript": "2.13.6",
+    "typescript": "~1.8.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DmitryEfimenko/ng-auto-save.git"
+  },
+  "keywords": [
+    "angularjs",
+    "javascript"
+  ],
+  "author": {
+    "name": "Dmitry Efimenko",
+    "email": "dmitrief@gmail.com"
+  },
+  "license": "MIT",
+  "typescript": {
+    "definition": "index.d.ts"
+  },
+  "bugs": {
+    "url": "https://github.com/DmitryEfimenko/ng-auto-save/issues"
+  }
+}

@@ -1,12 +1,14 @@
 ng-auto-save
 ====================
 
-Set of directives to save inputs' values as user types
+Set of angularjs directives to save inputs' values as user types
 
 Installation:
 -------------
+via NPM: `npm install ng-auto-save`
+
 *Reference module in your app*
-```JavaScript
+```javascript
 angular.module('app', ['ng-auto-save']);
 ```
 
@@ -22,36 +24,36 @@ All you have to do in the controller is to provide a function to save record. Th
 * **`key`** - the constraint that usually goes in the the `where` clause of the sql update statement
 
 **index.js - inside Controller:**
-```JavaScript
+```javascript
 $scope.updateField = function (field, val, key) {
-	return $http.post('/api/article/update', { id: key, field: field, val: val })
-		.success(function () {
-			articleRef[field] = $scope.article[field];
-		})
-		.error(function(error) {
-			console.log(error);
-		});
+    return $http.post('/api/article/update', { id: key, field: field, val: val })
+        .success(function () {
+            articleRef[field] = $scope.article[field];
+        })
+        .error(function(error) {
+            console.log(error);
+        });
 };
 ```
 
 **index.html:**
 Example uses [angular-material](https://material.angularjs.org/#/), [ng-messages](https://docs.angularjs.org/api/ngMessages/directive/ngMessages), [font-awesome](http://fortawesome.github.io/Font-Awesome/)
-```HTML
+```html
 <form name="formEditArticle" novalidate auto-save="updateField" auto-save-key="article.id" auto-save-debounce="1000">
-	<md-content layout="column">
-		<div layout="row" layout-align="start center">
-			<md-input-container>
-				<label>Name</label>
-				<input ng-model="article.name" required auto-save-field="name" name="article.name">
-			</md-input-container>
-			<span class="fa fa-gear fa-spin" auto-saving="name"></span>
-			<span class="fa fa-check-square-o" auto-saved="name"></span>
-		</div>
+    <md-content layout="column">
+        <div layout="row" layout-align="start center">
+            <md-input-container>
+                <label>Name</label>
+                <input ng-model="article.name" required auto-save-field="name" name="article.name">
+            </md-input-container>
+            <span class="fa fa-gear fa-spin" auto-saving="name"></span>
+            <span class="fa fa-check-square-o" auto-saved="name"></span>
+        </div>
 
-		<div ng-messages for="formEditArticle['article.name'].$error">
-			<span ng-message when="required">Name is required</span>
-		</div>
-	</md-content>
+        <div ng-messages for="formEditArticle['article.name'].$error">
+            <span ng-message when="required">Name is required</span>
+        </div>
+    </md-content>
 </form>
 ```
 **Explanation of directives used:**
@@ -66,11 +68,11 @@ Example uses [angular-material](https://material.angularjs.org/#/), [ng-messages
 Example for [NodeJs](http://nodejs.org/) as a web server using [express.js](http://expressjs.com/) and [PostgreSql](http://www.postgresql.org/) as a database.
 
 Set Route:
-```JavaScript
+```javascript
 router.post('/api/article/update', routes.api.articleUpdateField);
 ```
 Implementation for route:
-```JavaScript
+```javascript
 var query = require('pg-query');
 var squel = require("squel");
 squel.useFlavour('postgres');
