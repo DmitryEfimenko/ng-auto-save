@@ -1,6 +1,6 @@
 {
   "name": "ng-auto-save",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Set of angularjs directives to save inputs' values as user types",
   "main": "dist/src/ng-auto-save.js",
   "typings": "dist/typings/ng-auto-save.d.ts",
