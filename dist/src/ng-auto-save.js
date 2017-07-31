@@ -1,5 +1,3 @@
-"use strict";
-var angular = require('angular');
 var autoSaveModule = angular.module('ng-auto-save', []);
 function autoSaveDirective() {
     return {
@@ -8,7 +6,6 @@ function autoSaveDirective() {
         scope: false
     };
 }
-exports.autoSaveDirective = autoSaveDirective;
 var AutoSaveController = (function () {
     function AutoSaveController($scope, $element, $attrs) {
         var _this = this;
@@ -207,7 +204,6 @@ function autoSaveFieldDirective($timeout) {
         }
     };
 }
-exports.autoSaveFieldDirective = autoSaveFieldDirective;
 function autoSavingDirective() {
     return {
         restrict: 'A',
@@ -220,7 +216,6 @@ function autoSavingDirective() {
         }
     };
 }
-exports.autoSavingDirective = autoSavingDirective;
 function autoSavedDirective() {
     return {
         restrict: 'A',
@@ -233,10 +228,7 @@ function autoSavedDirective() {
         }
     };
 }
-exports.autoSavedDirective = autoSavedDirective;
 autoSaveModule.directive('autoSave', autoSaveDirective);
 autoSaveModule.directive('autoSaveField', autoSaveFieldDirective);
 autoSaveModule.directive('autoSaving', autoSavingDirective);
 autoSaveModule.directive('autoSaved', autoSavedDirective);
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = autoSaveModule;

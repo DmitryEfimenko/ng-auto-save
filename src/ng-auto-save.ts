@@ -1,8 +1,6 @@
-import angular = require('angular');
-
 var autoSaveModule = angular.module('ng-auto-save', []);
 
-export function autoSaveDirective(): angular.IDirective {
+function autoSaveDirective(): angular.IDirective {
     return {
         restrict: 'A',
         controller: AutoSaveController,
@@ -92,7 +90,7 @@ class AutoSaveController {
 }
 
 autoSaveFieldDirective.$inject = ['$timeout'];
-export function autoSaveFieldDirective($timeout): angular.IDirective {
+function autoSaveFieldDirective($timeout): angular.IDirective {
     return {
         restrict: 'A',
         require: ['^autoSave', '^form', 'ngModel'],
@@ -207,7 +205,7 @@ export function autoSaveFieldDirective($timeout): angular.IDirective {
     };
 }
 
-export function autoSavingDirective(): angular.IDirective {
+function autoSavingDirective(): angular.IDirective {
     return {
         restrict: 'A',
         require: '^autoSave',
@@ -220,7 +218,7 @@ export function autoSavingDirective(): angular.IDirective {
     };
 }
 
-export function autoSavedDirective(): angular.IDirective {
+function autoSavedDirective(): angular.IDirective {
     return {
         restrict: 'A',
         require: '^autoSave',
@@ -238,4 +236,4 @@ autoSaveModule.directive('autoSaveField', autoSaveFieldDirective);
 autoSaveModule.directive('autoSaving', autoSavingDirective);
 autoSaveModule.directive('autoSaved', autoSavedDirective);
 
-export default autoSaveModule;
+//export default autoSaveModule;
