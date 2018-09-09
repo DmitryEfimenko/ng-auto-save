@@ -21,7 +21,7 @@ Example:
 All you have to do in the controller is to provide a function to save record. This must return a promise and it takes three arguments:
 * **`field`** - corresponds to the column in the table in database that will be updated
 * **`val`** - new value to save
-* **`key`** - the constraint that usually goes in the the `where` clause of the sql update statement
+* **`key`** - the constraint that usually goes in the `where` clause of the sql update statement
 
 **index.js - inside Controller:**
 ```javascript
